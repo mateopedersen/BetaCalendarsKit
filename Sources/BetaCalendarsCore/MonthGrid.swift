@@ -80,16 +80,17 @@ public struct MonthGrid: Hashable, Codable, Sendable {
             let date = Self.utcNoon(for: representedDay)
             let components = weekCalendar.dateComponents([.weekOfYear, .yearForWeekOfYear], from: date)
             let includesDate = inMonth || overflow == .includeAdjacentMonths
-            generated.append(CalendarCell(
-                day: includesDate ? representedDay : nil,
-                row: index / 7,
-                column: index % 7,
-                weekday: weekday,
-                isInRequestedMonth: inMonth,
-                isWeekend: weekday.isWeekend,
-                weekOfYear: components.weekOfYear ?? 0,
-                weekBasedYear: components.yearForWeekOfYear ?? representedDay.year
-            ))
+            generated.append(
+                CalendarCell(
+                    day: includesDate ? representedDay : nil,
+                    row: index / 7,
+                    column: index % 7,
+                    weekday: weekday,
+                    isInRequestedMonth: inMonth,
+                    isWeekend: weekday.isWeekend,
+                    weekOfYear: components.weekOfYear ?? 0,
+                    weekBasedYear: components.yearForWeekOfYear ?? representedDay.year
+                ))
         }
 
         self.month = coordinate

@@ -1,5 +1,5 @@
-import Foundation
 import BetaCalendarsCore
+import Foundation
 
 /// A Gregorian leap-year assertion for a boundary fixture matrix.
 public struct LeapYearFixture: Codable, Hashable, Sendable {
@@ -19,7 +19,7 @@ public enum BoundaryFixture {
         LeapYearFixture(year: 2027, isLeapYear: false),
         LeapYearFixture(year: 2028, isLeapYear: true),
         LeapYearFixture(year: 2100, isLeapYear: false),
-        LeapYearFixture(year: 2400, isLeapYear: true)
+        LeapYearFixture(year: 2400, isLeapYear: true),
     ]
 
     /// Boundary reports around each ISO week-year transition in the given years.

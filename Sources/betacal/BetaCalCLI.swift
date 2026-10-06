@@ -1,7 +1,7 @@
-import Foundation
 import BetaCalendarsCore
 import BetaCalendarsFixtures
 import BetaCalendarsRecurrence
+import Foundation
 
 @main
 enum BetaCalCLI {
@@ -14,7 +14,8 @@ enum BetaCalCLI {
         }
     }
 
-    private static let usage = "Usage: betacal month YEAR MONTH [--week-start DAY] [--format text|json] | year YEAR [--format text|json] | boundaries YEAR [--format text|json] | recurrence --from YYYY-MM-DD --through YYYY-MM-DD --weekday DAY [--format text|json] | fixture year YEAR [--format text|json]"
+    private static let usage =
+        "Usage: betacal month YEAR MONTH [--week-start DAY] [--format text|json] | year YEAR [--format text|json] | boundaries YEAR [--format text|json] | recurrence --from YYYY-MM-DD --through YYYY-MM-DD --weekday DAY [--format text|json] | fixture year YEAR [--format text|json]"
 
     private static func run(_ args: [String]) throws {
         guard let command = args.first else { throw CLIError.usage }
@@ -23,12 +24,15 @@ enum BetaCalCLI {
             guard args.count >= 3, let year = Int(args[1]), let month = Int(args[2]) else { throw CLIError.usage }
             let weekday = try parsedWeekday(args)
             let format = try parsedFormat(args)
-            let grid = try MonthGrid(year: year, month: month, context: CalendarContext(firstWeekday: weekday), layout: .fixedSixWeeks)
+            let grid = try MonthGrid(
+                year: year, month: month, context: CalendarContext(firstWeekday: weekday), layout: .fixedSixWeeks)
             if format == .json { try emitJSON(grid) } else { printMonth(grid) }
         case "year":
             guard args.count >= 2, let year = Int(args[1]) else { throw CLIError.usage }
             let grid = try YearGrid(year: year, monthLayout: .fixedSixWeeks)
-            if try parsedFormat(args) == .json { try emitJSON(grid) } else {
+            if try parsedFormat(args) == .json {
+                try emitJSON(grid)
+            } else {
                 for month in grid.months {
                     printMonth(month)
                     print()
@@ -37,10 +41,15 @@ enum BetaCalCLI {
         case "boundaries":
             guard args.count >= 2, let year = Int(args[1]), (1...9999).contains(year) else { throw CLIError.usage }
             let endYear = min(year, 9999)
-            let range = try CalendarRange(start: CalendarDay(year: year, month: 1, day: 1), end: CalendarDay(year: endYear, month: 12, day: 31))
+            let range = try CalendarRange(
+                start: CalendarDay(year: year, month: 1, day: 1), end: CalendarDay(year: endYear, month: 12, day: 31))
             let report = try CalendarBoundaryAnalyzer.analyze(range)
-            if try parsedFormat(args) == .json { try emitJSON(report) } else {
-                for boundary in report.boundaries { print("\(boundary.kind.rawValue): \(boundary.before) → \(boundary.after)") }
+            if try parsedFormat(args) == .json {
+                try emitJSON(report)
+            } else {
+                for boundary in report.boundaries {
+                    print("\(boundary.kind.rawValue): \(boundary.before) → \(boundary.after)")
+                }
                 if report.boundaries.isEmpty { print("No boundaries found.") }
             }
         case "recurrence":
@@ -49,14 +58,22 @@ enum BetaCalCLI {
             guard let weekday = Weekday(name: try requiredOption("--weekday", in: args)) else { throw CLIError.usage }
             let range = try CalendarRange(start: from, end: through)
             let dates = try RecurrenceRule.weekly(weekday: weekday).occurrences(in: range)
-            if try parsedFormat(args) == .json { try emitJSON(dates) } else { dates.forEach { print($0.description) } }
+            if try parsedFormat(args) == .json {
+                try emitJSON(dates)
+            } else {
+                for date in dates {
+                    print(date.description)
+                }
+            }
         case "fixture":
             guard args.count >= 3, args[1] == "year", let year = Int(args[2]) else { throw CLIError.usage }
             let fixture = try CalendarFixture.year(year)
             if try parsedFormat(args) == .json {
                 FileHandle.standardOutput.write(try fixture.deterministicJSON())
                 print()
-            } else { print(fixture.name) }
+            } else {
+                print(fixture.name)
+            }
         default:
             throw CLIError.usage
         }
@@ -64,13 +81,16 @@ enum BetaCalCLI {
 
     private static func printMonth(_ grid: MonthGrid) {
         print("\(grid.month)")
-        let headers = (0..<7).map { offset in Weekday(rawValue: ((grid.firstWeekday.rawValue - 1 + offset) % 7) + 1)!.description.prefix(2).capitalized }
+        let headers = (0..<7).map { offset in
+            Weekday(rawValue: ((grid.firstWeekday.rawValue - 1 + offset) % 7) + 1)!.description.prefix(2).capitalized
+        }
         print(headers.joined(separator: " "))
         for row in grid.weeks {
-            print(row.map { cell in
-                guard let day = cell.day else { return "  " }
-                return String(format: "%2d", day.day)
-            }.joined(separator: " "))
+            print(
+                row.map { cell in
+                    guard let day = cell.day else { return "  " }
+                    return String(format: "%2d", day.day)
+                }.joined(separator: " "))
         }
     }
 

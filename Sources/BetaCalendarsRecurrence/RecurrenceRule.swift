@@ -36,13 +36,13 @@ public enum RecurrenceRule: Hashable, Codable, Sendable {
         guard context.supportsGregorianGrids else { throw CalendarError.unsupportedCalendar }
         guard maximumOccurrences >= 0 else { throw CalendarError.occurrenceLimitExceeded }
         switch self {
-        case let .weekly(_, interval), let .everyDays(interval):
+        case .weekly(_, let interval), .everyDays(let interval):
             guard interval > 0 else { throw CalendarError.invalidDate }
-        case let .monthlyDay(day, _):
+        case .monthlyDay(let day, _):
             guard (1...31).contains(day) else { throw CalendarError.invalidDate }
-        case let .nthWeekday(ordinal, _, _):
+        case .nthWeekday(let ordinal, _, _):
             guard (1...5).contains(ordinal) else { throw CalendarError.invalidDate }
-        case let .annual(month, day, _):
+        case .annual(let month, let day, _):
             guard (1...12).contains(month), (1...31).contains(day) else { throw CalendarError.invalidDate }
         case .lastWeekday:
             break
@@ -62,18 +62,19 @@ public enum RecurrenceRule: Hashable, Codable, Sendable {
 
     private func matches(_ day: CalendarDay, range: CalendarRange, context: CalendarContext) throws -> Bool {
         switch self {
-        case let .weekly(weekday, interval):
+        case .weekly(let weekday, let interval):
             guard day.weekday == weekday else { return false }
             let weekStart = day.ordinal - ((day.weekday.rawValue - context.firstWeekday.rawValue + 7) % 7)
-            let rangeWeekStart = range.start.ordinal - ((range.start.weekday.rawValue - context.firstWeekday.rawValue + 7) % 7)
+            let rangeWeekStart =
+                range.start.ordinal - ((range.start.weekday.rawValue - context.firstWeekday.rawValue + 7) % 7)
             return ((weekStart - rangeWeekStart) / 7).isMultiple(of: interval)
-        case let .everyDays(interval):
+        case .everyDays(let interval):
             return ((day.ordinal - range.start.ordinal) % interval) == 0
-        case let .monthlyDay(target, policy):
+        case .monthlyDay(let target, let policy):
             let monthLength = CalendarDay.daysInMonth(year: day.year, month: day.month)
             let actual = try Self.resolve(target, maximum: monthLength, policy: policy)
             return day.day == actual
-        case let .nthWeekday(ordinal, weekday, policy):
+        case .nthWeekday(let ordinal, let weekday, let policy):
             let first = try CalendarDay(year: day.year, month: day.month, day: 1)
             let firstOffset = (weekday.rawValue - first.weekday.rawValue + 7) % 7
             let requested = 1 + firstOffset + (ordinal - 1) * 7
@@ -89,13 +90,14 @@ public enum RecurrenceRule: Hashable, Codable, Sendable {
                 }
             }
             return day.day == actual
-        case let .lastWeekday(weekday):
+        case .lastWeekday(let weekday):
             let maximum = CalendarDay.daysInMonth(year: day.year, month: day.month)
             let final = try CalendarDay(year: day.year, month: day.month, day: maximum)
             return day.weekday == weekday && day.day == maximum - ((final.weekday.rawValue - weekday.rawValue + 7) % 7)
-        case let .annual(month, target, policy):
+        case .annual(let month, let target, let policy):
             guard day.month == month else { return false }
-            let actual = try Self.resolve(target, maximum: CalendarDay.daysInMonth(year: day.year, month: month), policy: policy)
+            let actual = try Self.resolve(
+                target, maximum: CalendarDay.daysInMonth(year: day.year, month: month), policy: policy)
             return day.day == actual
         }
     }

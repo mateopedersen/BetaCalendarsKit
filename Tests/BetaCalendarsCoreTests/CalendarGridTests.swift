@@ -20,7 +20,8 @@ import Testing
 @Test func compactAndOverflowPoliciesPreserveCivilCoordinates() throws {
     let compact = try MonthGrid(year: 2027, month: 1, context: CalendarContext(firstWeekday: .monday))
     #expect((4...6).contains(compact.rowCount))
-    #expect(compact.inMonthDays.first == CalendarDay(year: 2027, month: 1, day: 1))
+    let januaryFirst = try CalendarDay(year: 2027, month: 1, day: 1)
+    #expect(compact.inMonthDays.first == januaryFirst)
 
     let placeholders = try MonthGrid(year: 2027, month: 1, overflow: .placeholder)
     #expect(placeholders.cells.count == 42)
@@ -36,7 +37,9 @@ import Testing
     #expect(CalendarDay.isLeapYear(2000))
     #expect(!CalendarDay.isLeapYear(2100))
     #expect(CalendarDay.isLeapYear(2400))
-    #expect(try CalendarDay(year: 2024, month: 2, day: 29).adding(days: 1) == CalendarDay(year: 2024, month: 3, day: 1))
+    let leapDay = try CalendarDay(year: 2024, month: 2, day: 29)
+    let marchFirst = try CalendarDay(year: 2024, month: 3, day: 1)
+    #expect(try leapDay.adding(days: 1) == marchFirst)
     #expect(try MonthCoordinate(year: 2026, month: 12).adding(months: 1) == MonthCoordinate(year: 2027, month: 1))
 }
 
@@ -50,7 +53,8 @@ import Testing
 @Test func everyGregorianMonthFrom1900Through2100SatisfiesGridInvariants() throws {
     for year in 1900...2100 {
         for month in 1...12 {
-            let grid = try MonthGrid(year: year, month: month, context: CalendarContext(firstWeekday: .sunday), layout: .fixedSixWeeks)
+            let grid = try MonthGrid(
+                year: year, month: month, context: CalendarContext(firstWeekday: .sunday), layout: .fixedSixWeeks)
             let expectedCount = CalendarDay.daysInMonth(year: year, month: month)
             #expect(grid.cells.count == 42)
             #expect(grid.inMonthDays.count == expectedCount)

@@ -1,5 +1,5 @@
-import Foundation
 import BetaCalendarsCore
+import Foundation
 
 /// A deterministic, serializable month or year fixture.
 public struct CalendarFixture: Codable, Sendable {
@@ -44,7 +44,9 @@ public struct CalendarFixture: Codable, Sendable {
     /// Encodes the fixture with stable key order and no host-dependent metadata.
     public func deterministicJSON(prettyPrinted: Bool = true) throws -> Data {
         let encoder = JSONEncoder()
-        encoder.outputFormatting = prettyPrinted ? [.sortedKeys, .prettyPrinted, .withoutEscapingSlashes] : [.sortedKeys, .withoutEscapingSlashes]
+        encoder.outputFormatting =
+            prettyPrinted
+            ? [.sortedKeys, .prettyPrinted, .withoutEscapingSlashes] : [.sortedKeys, .withoutEscapingSlashes]
         return try encoder.encode(self)
     }
 }

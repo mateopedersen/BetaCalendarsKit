@@ -22,7 +22,9 @@ public struct CalendarRange: Hashable, Codable, Sendable {
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        try self.init(start: container.decode(CalendarDay.self, forKey: .start), end: container.decode(CalendarDay.self, forKey: .end))
+        try self.init(
+            start: container.decode(CalendarDay.self, forKey: .start),
+            end: container.decode(CalendarDay.self, forKey: .end))
     }
 }
 
@@ -52,7 +54,9 @@ public struct MonthCoordinate: Hashable, Codable, Sendable, Comparable, CustomSt
     public func adding(months offset: Int) throws -> MonthCoordinate {
         let base = (year - 1) * 12 + month - 1
         let target = base.addingReportingOverflow(offset)
-        guard !target.overflow, target.partialValue >= 0, target.partialValue < 9999 * 12 else { throw CalendarError.invalidDate }
+        guard !target.overflow, target.partialValue >= 0, target.partialValue < 9999 * 12 else {
+            throw CalendarError.invalidDate
+        }
         return try MonthCoordinate(year: target.partialValue / 12 + 1, month: target.partialValue % 12 + 1)
     }
 
@@ -60,7 +64,8 @@ public struct MonthCoordinate: Hashable, Codable, Sendable, Comparable, CustomSt
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        try self.init(year: container.decode(Int.self, forKey: .year), month: container.decode(Int.self, forKey: .month))
+        try self.init(
+            year: container.decode(Int.self, forKey: .year), month: container.decode(Int.self, forKey: .month))
     }
 }
 

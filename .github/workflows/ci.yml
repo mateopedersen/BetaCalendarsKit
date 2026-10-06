@@ -18,13 +18,18 @@ jobs:
           - os: macos-15
             swift: '6.4.0'
           - os: ubuntu-24.04
-            swift: '6.0.3'
+            swift: '6.0'
           - os: ubuntu-24.04
             swift: '6.4.0'
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+      - uses: swift-actions/setup-swift@v2
+        if: matrix.swift == '6.0'
+        with:
+          swift-version: '6.0'
       - uses: swift-actions/setup-swift@v3
+        if: matrix.swift == '6.4.0'
         with:
           swift-version: ${{ matrix.swift }}
       - name: Validate manifest JSON

@@ -57,7 +57,9 @@ public struct BoundaryReport: Hashable, Codable, Sendable {
 /// Scans a finite civil-day range for calendar and time-zone boundaries.
 public enum CalendarBoundaryAnalyzer {
     /// Analyzes adjacent-day semantics and, when present, daylight-saving transitions.
-    public static func analyze(_ range: CalendarRange, context: CalendarContext = CalendarContext()) throws -> BoundaryReport {
+    public static func analyze(_ range: CalendarRange, context: CalendarContext = CalendarContext()) throws
+        -> BoundaryReport
+    {
         var boundaries: [CalendarBoundary] = []
         let iso = Calendar(identifier: .iso8601)
         var previous = range.start
@@ -99,13 +101,14 @@ public enum CalendarBoundaryAnalyzer {
             let before = context.timeZone.secondsFromGMT(for: transition.addingTimeInterval(-1))
             let after = context.timeZone.secondsFromGMT(for: transition)
             if before != after {
-                result.append(TimeZoneTransition(
-                    instant: transition,
-                    localDay: CalendarDay(date: transition, in: context),
-                    change: after > before ? .gap : .overlap,
-                    offsetBefore: before,
-                    offsetAfter: after
-                ))
+                result.append(
+                    TimeZoneTransition(
+                        instant: transition,
+                        localDay: CalendarDay(date: transition, in: context),
+                        change: after > before ? .gap : .overlap,
+                        offsetBefore: before,
+                        offsetAfter: after
+                    ))
             }
             cursor = transition.addingTimeInterval(1)
         }

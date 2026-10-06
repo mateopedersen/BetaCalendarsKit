@@ -14,7 +14,9 @@ public struct CalendarDay: Hashable, Codable, Sendable, Comparable, CustomString
 
     /// Creates and validates a Gregorian civil date.
     public init(year: Int, month: Int, day: Int) throws {
-        guard (1...9999).contains(year), (1...12).contains(month), (1...Self.daysInMonth(year: year, month: month)).contains(day) else {
+        guard (1...9999).contains(year), (1...12).contains(month),
+            (1...Self.daysInMonth(year: year, month: month)).contains(day)
+        else {
             throw CalendarError.invalidDate
         }
         self.year = year
@@ -91,7 +93,9 @@ public struct CalendarDay: Hashable, Codable, Sendable, Comparable, CustomString
     }
 
     /// Gregorian leap-year rule, including century exceptions.
-    public static func isLeapYear(_ year: Int) -> Bool { year.isMultiple(of: 4) && (!year.isMultiple(of: 100) || year.isMultiple(of: 400)) }
+    public static func isLeapYear(_ year: Int) -> Bool {
+        year.isMultiple(of: 4) && (!year.isMultiple(of: 100) || year.isMultiple(of: 400))
+    }
 
     private static func daysBeforeYear(_ year: Int) -> Int {
         let prior = year - 1
@@ -123,6 +127,8 @@ public struct CalendarDay: Hashable, Codable, Sendable, Comparable, CustomString
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        try self.init(year: container.decode(Int.self, forKey: .year), month: container.decode(Int.self, forKey: .month), day: container.decode(Int.self, forKey: .day))
+        try self.init(
+            year: container.decode(Int.self, forKey: .year), month: container.decode(Int.self, forKey: .month),
+            day: container.decode(Int.self, forKey: .day))
     }
 }
