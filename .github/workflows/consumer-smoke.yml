@@ -13,9 +13,9 @@ jobs:
   consumer:
     runs-on: ubuntu-24.04
     steps:
-      - uses: swift-actions/setup-swift@v2
+      - uses: swift-actions/setup-swift@v3
         with:
-          swift-version: '6.4'
+          swift-version: '6.4.0'
       - name: Create a clean consumer package
         shell: bash
         run: |
