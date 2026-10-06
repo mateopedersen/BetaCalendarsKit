@@ -23,7 +23,12 @@ import Testing
     let januaryFirst = try CalendarDay(year: 2027, month: 1, day: 1)
     #expect(compact.inMonthDays.first == januaryFirst)
 
-    let placeholders = try MonthGrid(year: 2027, month: 1, overflow: .placeholder)
+    let placeholders = try MonthGrid(
+        year: 2027,
+        month: 1,
+        layout: .fixedSixWeeks,
+        overflow: .placeholder
+    )
     #expect(placeholders.cells.count == 42)
     #expect(placeholders.cells.contains { !$0.isInRequestedMonth && $0.day == nil })
 
