@@ -1,0 +1,63 @@
+name: Fresh SwiftPM consumer
+
+on:
+  push:
+    tags:
+      - '1.0.0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  consumer:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: '6.4'
+      - name: Create a clean consumer package
+        shell: bash
+        run: |
+          mkdir consumer && cd consumer
+          cat > Package.swift <<'EOF'
+          // swift-tools-version: 6.0
+          import PackageDescription
+
+          let package = Package(
+              name: "BetaCalendarsKitConsumer",
+              dependencies: [
+                  .package(url: "https://github.com/mateopedersen/BetaCalendarsKit.git", from: "1.0.0")
+              ],
+              targets: [
+                  .executableTarget(
+                      name: "Consumer",
+                      dependencies: [
+                          .product(name: "BetaCalendarsCore", package: "betacalendarskit"),
+                          .product(name: "BetaCalendarsRecurrence", package: "betacalendarskit"),
+                          .product(name: "BetaCalendarsFixtures", package: "betacalendarskit")
+                      ]
+                  )
+              ]
+          )
+          EOF
+          mkdir -p Sources/Consumer
+          cat > Sources/Consumer/main.swift <<'EOF'
+          import BetaCalendarsCore
+          import BetaCalendarsFixtures
+          import BetaCalendarsRecurrence
+
+          let grid = try MonthGrid(year: 2027, month: 1, layout: .fixedSixWeeks)
+          precondition(grid.cells.count == 42)
+          let start = try CalendarDay(year: 2027, month: 1, day: 1)
+          let end = try CalendarDay(year: 2027, month: 1, day: 31)
+          let range = try CalendarRange(start: start, end: end)
+          let dates = try RecurrenceRule.everyDays(interval: 7).occurrences(in: range)
+          precondition(!dates.isEmpty)
+          let fixture = try CalendarFixture.month(year: 2027, month: 1)
+          precondition(!fixture.deterministicJSON().isEmpty)
+          print("Fresh consumer resolved BetaCalendarsKit 1.0.0 and used all library products.")
+          EOF
+      - name: Resolve and run against the tagged release
+        working-directory: consumer
+        run: swift run Consumer
