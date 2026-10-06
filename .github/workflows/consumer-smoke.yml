@@ -55,7 +55,8 @@ jobs:
           let dates = try RecurrenceRule.everyDays(interval: 7).occurrences(in: range)
           precondition(!dates.isEmpty)
           let fixture = try CalendarFixture.month(year: 2027, month: 1)
-          precondition(!fixture.deterministicJSON().isEmpty)
+          let fixtureData = try fixture.deterministicJSON()
+          precondition(!fixtureData.isEmpty)
           print("Fresh consumer resolved BetaCalendarsKit 1.0.0 and used all library products.")
           EOF
       - name: Resolve and run against the tagged release
